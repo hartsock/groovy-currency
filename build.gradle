@@ -1,0 +1,42 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+// example service: http://www.restfulwebservices.net/wcf/CurrencyService.svc?wsdl
+
+def wsdlUrl = "http://www.restfulwebservices.net/wcf/CurrencyService.svc?wsdl".toURL()
+
+configurations {
+    jaxws
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    jaxws group: 'com.sun.xml.ws', name: 'jaxws-tools', version: '2.1.4'
+    groovy "org.codehaus.groovy:groovy-all:2.0.5"
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+task wsimport {
+    file("build/wsimport").mkdirs()
+
+    ant {
+
+        taskdef(
+                name: 'wsimport',
+                classname: 'com.sun.tools.ws.ant.WsImport',
+                classpath: configurations.jaxws.asPath
+        )
+
+        wsimport(
+                wsdllocation: wsdlUrl,
+                package: 'currency.soapclient',
+                sourcedestdir: 'src/main/java',
+                destdir: "build/wsimport",
+                wsdl: wsdlUrl
+        )
+
+    }
+
+}
